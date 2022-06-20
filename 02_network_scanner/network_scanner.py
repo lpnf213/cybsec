@@ -54,6 +54,7 @@ def all_network(ip):
     for i in range(255):
         c += 1
         if c == 50:
+            # turn off on
             turn_off_on()
             c = 0
         ip_router[-1] = str(i)
@@ -66,10 +67,12 @@ def all_network(ip):
         if scan_ is not None:
             list_targets.append(scan_[0])
         print_results(list_targets)
+        print("to see OS: 'nmap --osscan-guess {ip}'")
     return list_targets
 
 
 ip = get_arguments()
+# scan all network
 scan_result = all_network(ip)
 subprocess.call('clear')
 print_results(scan_result)
