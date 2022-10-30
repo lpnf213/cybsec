@@ -73,7 +73,7 @@ try:
             # use spoof function
             spoof_func(target, router)
             print("[+] Sent to packets")
-            time.sleep(0)
+            time.sleep(1)
         except Exception as e:
             print(e)
 except KeyboardInterrupt:

