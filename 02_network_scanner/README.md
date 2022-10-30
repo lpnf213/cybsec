@@ -1,20 +1,10 @@
 
-* mac address -> Media Access Control
-*                   Permanent
-*                   Physical
-*                   Unique
+Get all devices in network 
 
-* Assigned by manufacturer
+first, see your ip: 
+execute: ifconfig
 
-* -> identify devices
-*  > transfer data
+command execute example: python network_scanner.py -t 192.168.1.1
 
-* Why Change MAC address ?
-* -> Increase anonymity
-* Impressionate other devices
+other command: nmap --osscan-guess 192.168.1.*
 
-* shell commands
-* ifconfig #see ip and mac
-
-* utils
-* pythex.com
