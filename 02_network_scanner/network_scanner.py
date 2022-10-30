@@ -22,7 +22,7 @@ def scan(ip):
     # ARP REQUEST + INTERNET FRAME
     arp_request_broadcast = broadcast/arp_request
     answered_list = scapy.srp(arp_request_broadcast,
-                              timeout=1, verbose=False)[0]
+                              timeout=2, verbose=True)[0]
 
     # list of dictionaries
     clients_list = []
@@ -57,7 +57,7 @@ def all_network(ip):
             # turn off on
             turn_off_on()
             c = 0
-        ip_router[-1] = str(i)
+        ip_router[-1] = str(255-i)
         target_ip = ''
         for part_ip in ip_router:
             target_ip += '.' + str(part_ip)

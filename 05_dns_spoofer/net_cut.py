@@ -11,7 +11,7 @@ def get_arguments():
     (options, arguments) = parser.parse_args()
     return int(options.queue_position)
 
-
+os.system('iptables --flush')
 # subprocess.call('sudo apt-get install iptables', shell=True)
 
 # use de funtion get_arguments to get queueu position
