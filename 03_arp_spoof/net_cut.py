@@ -18,7 +18,7 @@ os.system('iptables --flush')
 queue_position = get_arguments()
 
 # create a command to save information in iptable
-s_iptable = f'iptables -A FORWARD -j NFQUEUE --queue-num {str(queue_position)}'
+s_iptable = f'iptables -A INPUT -j NFQUEUE --queue-num {str(queue_position)}'
 
 # call function
 os.system(s_iptable)
