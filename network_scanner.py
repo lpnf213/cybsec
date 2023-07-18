@@ -17,57 +17,54 @@ def get_arguments():
 def scan(ip):
     # ARP REQUEST -> who has net ip?
     arp_request = scapy.ARP(pdst=ip)
+    print(arp_request)
     # internet object frame
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+    print(broadcast)
     # ARP REQUEST + INTERNET FRAME
     arp_request_broadcast = broadcast/arp_request
-    answered_list = scapy.srp(arp_request_broadcast,
-                              timeout=1, verbose=True)[0]
+    print(arp_request_broadcast)
+    
+    answered_list, unanswered = scapy.srp(arp_request_broadcast,
+                              timeout=5, verbose=True)
+    print(answered_list)
+    print(unanswered)
 
     # list of dictionaries
     clients_list = []
     for element in answered_list:
         client_dict = {"ip": element[1].psrc, "mac": element[1].hwsrc}
-        clients_list.append(client_dict)
-        return clients_list
+        clients_list.append([client_dict])
+    print(clients_list)
+    return clients_list
 
 
 def print_results(results_list):
     print("IP\t\t\tMAC Address\n-----------------------------------")
     for client in results_list:
-        print(client['ip']+"\t\t"+client['mac'])
+        print(client[0]['ip']+"\t\t"+client[0]['mac'])
 
 
 def turn_off_on():
-    print("Turning Wifi off...\n")
-    os.system("nmcli radio wifi off")
-    time.sleep(2)
-    os.system("nmcli radio wifi on")
-    print("Starting Wifi...\n")
-    time.sleep(10)
+    True
+    #print("Turning Wifi off...\n")
+    #os.system("nmcli radio wifi off")
+    #time.sleep(2)
+    #os.system("nmcli radio wifi on")
+    #print("Starting Wifi...\n")
+    #time.sleep(10)
 
 
 def all_network(ip):
     c = 0
     list_targets = []
-    ip_router = ip.split('.')
-    for i in range(255):
-        c += 1
-        if c == 50:
-            # turn off on
-            turn_off_on()
-            c = 0
-        ip_router[-1] = str(255-i)
-        target_ip = ''
-        for part_ip in ip_router:
-            target_ip += '.' + str(part_ip)
-        scan_ = scan(target_ip[1:])
-        subprocess.call('clear')
-        print(target_ip[1:])
-        if scan_ is not None:
-            list_targets.append(scan_[0])
-        print_results(list_targets)
-        print("to see OS: 'nmap --osscan-guess {ip}'")
+    scan_ = scan(ip)
+    subprocess.call('clear')
+    if scan_ is not None:
+        list_targets.append(scan_)
+    #print(list_targets[0])
+    print_results(list_targets[0])
+    print("to see OS: 'nmap --osscan-guess {ip}'")
     return list_targets
 
 
@@ -75,7 +72,7 @@ ip = get_arguments()
 # scan all network
 scan_result = all_network(ip)
 subprocess.call('clear')
-print_results(scan_result)
+print_results(scan_result[0])
 print("to see OS: 'nmap --osscan-guess {ip}'")
 
 

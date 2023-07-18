@@ -39,9 +39,9 @@ def process_sniffed_packet(packet):
             
 # sniff information of interface victim
 def sniff(interface):
-    subprocess.call('iptables --flush', shell=True)
-    s_iptable = f'iptables -I FORWARD -j NFQUEUE --queue-num 0'
-    subprocess.call(s_iptable, shell=True)
+    #subprocess.call('iptables --flush', shell=True)
+    #s_iptable = f'iptables -I FORWARD -j NFQUEUE --queue-num 0'
+    #subprocess.call(s_iptable, shell=True)
     # pip install scapy_http
     # filter udp; arp; tcp
     # port 21 to passwords tcp
