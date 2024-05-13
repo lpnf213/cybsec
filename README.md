@@ -7,7 +7,7 @@ KALI LINUX DEBIAN VM
 # shared folder with Main Machine
 Configure in VMWARE the share folder and inside vm run commands:
 connect share folder in configurations
-/mnt/hgfs
+cd /mnt/hgfs
 sudo vim /etc/fstab
 vmhgfs-fuse /mnt/hgfs fuse defaults,allow_other,nofail 0 0
 sudo reboot now
