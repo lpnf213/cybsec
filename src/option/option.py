@@ -3,7 +3,14 @@ from src.command.command import Command
 
 
 class Option:
-    def __init__(self, name, description, status: bool, command: Command):
+    def __init__(self, identifier:str,
+                 priority: int,
+                 name:str,
+                 description:str,
+                 status: bool,
+                 command: Command):
+        self.id: str = identifier
+        self.priority: int = priority
         self.name: str = name
         self.description: str = description
         self.status: bool = status
@@ -21,10 +28,15 @@ class Option:
     def set_command(self, command: Command):
         self.command: Command = command
 
-    def update_by_rules(self, config_data: dict):
-        # Update behavior based on new configurations
-        print("Options updated based on new configurations")
+    def update_by_rules(self, config_data):
+        if self.id in ['000','001','002','003']:
+            self.set_status(1)
 
     @staticmethod
-    def build(name: str, description: str, status: bool, command: Command):
-        return Option(name, description, status, command)
+    def build(identifier: str,
+              priority: int,
+              name: str,
+              description: str,
+              status: bool,
+              command: Command):
+        return Option(identifier,priority, name, description, status, command)

@@ -1,6 +1,8 @@
-from cmd.command_line import DirectCommandLine
-from regex_parser.regex_parser import RegexParser
+from src.cmd.command_line import DirectCommandLine
+from src.regex_parser.regex_parser import RegexParser
 import time
+
+from src.utils.fast_menu_to_choose import display, get_choice
 
 class InterfaceMacController:
 
@@ -16,6 +18,16 @@ class InterfaceMacController:
         for position, interface in enumerate(interfaces_list):
             items = [interface, ip_list[position], mac_list[position]]
             print("\t".join(map(str, items)))
+
+    @staticmethod
+    def choose_interface():
+        interfaces_list, ip_list, mac_list = InterfaceMacController.get_interface_resume()
+        options: list = []
+        for position, interface in enumerate(interfaces_list):
+            option = {interface: f'{interface} - {ip_list[position]} - {mac_list[position]}'}
+            options.append(option)
+        display(options)
+        return get_choice(options)
 
     @staticmethod
     def get_interface_resume():

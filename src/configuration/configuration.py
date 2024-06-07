@@ -13,7 +13,6 @@ from typing import List
 
 from src.option.option import Option
 
-
 class Configuration:
     _instance = None
 
@@ -21,7 +20,9 @@ class Configuration:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._observers: List[Option] = [] # type: ignore
-            cls._instance._config_data = {}  # Your configuration data goes here
+            cls._instance._config_data = {
+                'my_interface': None
+            }  # Your configuration data goes here
         return cls._instance
 
     def set_configuration(self, key, value):

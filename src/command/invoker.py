@@ -14,4 +14,3 @@ class Invoker:
 
     def execute_command(self):
         self.command.execute()
-        self.command.set_configuration()

@@ -1,11 +1,12 @@
+from src.option.option_manager_builder import OptionManagerBuilder
 from src.menu.menu import Menu
-from src.configuration.configuration import Configuration
 from src.option.option_manager import OptionManager
 
 
 def main():
-    option_manager: OptionManager = OptionManager.build()
-    while 1==1:
+    option_manager: OptionManager = OptionManagerBuilder.build()
+    while True:
         menu: Menu = Menu.build(option_manager)
         menu.display()
-        menu.get_choice()
+        option_id:str = menu.get_choice()
+        option_manager.execute_option(identifier=option_id)

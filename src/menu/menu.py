@@ -1,15 +1,16 @@
 # Menu
+from src.option.option import Option
 from src.option.option_manager import OptionManager
 
 
 class Menu:
     def __init__(self, option_manager: OptionManager):
-        self.option_manager = option_manager
+        active_options: dict = option_manager.active_options
+        self.sorted_options = sorted(active_options.values(), key=lambda option: option.priority)
 
     def display(self):
         print("Menu:")
-        active_options: dict = self.option_manager.active_options
-        for idx, active_option in enumerate(active_options.values(), start=1):
+        for idx, active_option in enumerate(self.sorted_options, start=1):
             print(f"{idx}. {active_option.name} - {active_option.description}")
 
     def get_choice(self):
@@ -17,9 +18,9 @@ class Menu:
             choice = input("Enter your choice: ")
             if choice.isdigit():
                 index = int(choice) - 1
-                if 0 <= index < len(self.option_manager.active_options):
-                    print(self.option_manager.active_options[index].name)
-                    return index
+                if 0 <= index < len(self.sorted_options):
+                    selected_option: Option = self.sorted_options[index]
+                    return selected_option.id
             print("Invalid choice. Please enter a valid number.")
 
     @staticmethod
