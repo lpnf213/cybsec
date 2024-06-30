@@ -1,33 +1,44 @@
-from src.cmd.command_line import DirectCommandLine
-from src.regex_parser.regex_parser import RegexParser
+from cmd.command_line import DirectCommandLine
+from regex_parser.regex_parser import RegexParser
 import time
+import ipaddress
 
-from src.utils.fast_menu_to_choose import display, get_choice
+from utils.utils import choose_options_in_dict
 
 class InterfaceMacController:
 
-    @staticmethod
-    def generate_report():
-        interfaces_list, ip_list, mac_list = InterfaceMacController.get_interface_resume()
-        # Header for the report
-        header = "NAME\tIP\tMAC ADDRESS"
-        print(header)
-        print("=" * len(header.expandtabs()))
 
-        # Iterate through each sublist and print the information
-        for position, interface in enumerate(interfaces_list):
-            items = [interface, ip_list[position], mac_list[position]]
-            print("\t".join(map(str, items)))
+    @staticmethod
+    def detect_cidr(ip_address: str):
+        # List of common subnet masks
+        common_subnet_masks = ['255.255.255.0', '255.255.0.0', '255.0.0.0']
+
+        for mask in common_subnet_masks:
+            network = ipaddress.IPv4Network((ip_address, mask), strict=False)
+            cidr_notation = str(network)
+            print(f"CIDR notation for IP {ip_address} with subnet mask {mask} is {cidr_notation}")
 
     @staticmethod
     def choose_interface():
+        all_items = InterfaceMacController.generate_report(show_report=False)
+        return choose_options_in_dict(all_items)
+
+    @staticmethod
+    def generate_report(show_report: bool = True):
         interfaces_list, ip_list, mac_list = InterfaceMacController.get_interface_resume()
-        options: list = []
+        # Header for the report
+        header = "NAME\tIP\tMAC ADDRESS"
+        if show_report:
+            print(header)
+            print("=" * len(header.expandtabs()))
+        all_items: dict = {}
+        # Iterate through each sublist and print the information
         for position, interface in enumerate(interfaces_list):
-            option = {interface: f'{interface} - {ip_list[position]} - {mac_list[position]}'}
-            options.append(option)
-        display(options)
-        return get_choice(options)
+            items = [interface, ip_list[position], mac_list[position]]
+            if show_report:
+                print("\t".join(map(str, items)))
+            all_items[interface] = items
+        return all_items
 
     @staticmethod
     def get_interface_resume():

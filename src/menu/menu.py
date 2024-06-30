@@ -1,6 +1,6 @@
 # Menu
-from src.option.option import Option
-from src.option.option_manager import OptionManager
+from option.option import Option
+from option.option_manager import OptionManager
 
 
 class Menu:

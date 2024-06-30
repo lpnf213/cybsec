@@ -11,7 +11,7 @@ subject whenever there's a change in configurations.
 """
 from typing import List
 
-from src.option.option import Option
+from option.option import Option
 
 class Configuration:
     _instance = None

@@ -1,6 +1,6 @@
 # Command Interface
-from src.configuration.configuration import Configuration
-from src.command.command import Command
+from configuration.configuration import Configuration
+from command.command import Command
 
 
 class HelloWorld(Command):

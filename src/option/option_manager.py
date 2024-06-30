@@ -1,7 +1,7 @@
 # Option Manager
-from src.configuration.configuration import Configuration
-from src.command.invoker import Invoker
-from src.option.option import Option
+from configuration.configuration import Configuration
+from command.invoker import Invoker
+from option.option import Option
 
 
 class OptionManager:

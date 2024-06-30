@@ -1,5 +1,5 @@
 # Builder Pattern
-from src.command.command import Command
+from command.command import Command
 
 
 class Option:

@@ -1,5 +1,5 @@
 # Command Interface
-from src.command.command import Command
+from command.command import Command
 import sys
 
 

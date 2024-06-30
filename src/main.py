@@ -1,4 +1,4 @@
-from src.core import core
+from core import core
 
 if __name__ == '__main__':
     core.main()

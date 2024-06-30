@@ -2,7 +2,7 @@
 Invoker: This is responsible for invoking the commands. 
 It holds a reference to the command and calls its execute() method.
 """
-from src.command.command import Command
+from command.command import Command
 
 
 class Invoker:

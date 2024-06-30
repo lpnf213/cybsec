@@ -1,6 +1,6 @@
-from src.option.option_manager_builder import OptionManagerBuilder
-from src.menu.menu import Menu
-from src.option.option_manager import OptionManager
+from option.option_manager_builder import OptionManagerBuilder
+from menu.menu import Menu
+from option.option_manager import OptionManager
 
 
 def main():

@@ -1,10 +1,10 @@
-from src.interface_mac_controller.command_choose_interface import ChooseInterface
-from src.interface_mac_controller.command_report_interface import ReportInterface
-from src.option.option_manager import OptionManager
-from src.command.exit_program import ExitProgram
-from src.configuration.configuration import Configuration
-from src.command.hello_world import HelloWorld
-from src.option.option import Option
+from interface_mac_controller.command_choose_interface import ChooseInterface
+from interface_mac_controller.command_report_interface import ReportInterface
+from option.option_manager import OptionManager
+from command.exit_program import ExitProgram
+from configuration.configuration import Configuration
+from command.hello_world import HelloWorld
+from option.option import Option
 
 class OptionManagerBuilder:
     @staticmethod
