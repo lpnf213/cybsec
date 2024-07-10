@@ -1,3 +1,6 @@
+from tabulate import tabulate
+import os
+
 def get_choice_info(choice, options_dict):
     # Get the list of keys from the dictionary
     keys = list(options_dict.keys())
@@ -25,3 +28,22 @@ def choose_options_in_dict(options_dict):
                              options_dict = options_dict)
     print(result)
     return result
+
+
+def display_dict_as_table(data: dict, headers: list, title: str):
+    # Convert the dictionary to a list of tuples
+    print(title)
+    table: list = list(data.items())
+
+    # Print the table using tabulate
+    print(tabulate(table, headers, tablefmt="grid"))
+
+def press_enter_and_clear_screen():
+        # Prompt user to press Enter
+        input("Please press Enter to continue...")
+
+        # Clear the screen based on the operating system
+        if os.name == 'nt':  # For Windows
+            os.system('cls')
+        else:  # For Unix/Linux/MacOS
+            os.system('clear')

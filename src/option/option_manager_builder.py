@@ -1,5 +1,7 @@
 from interface_mac_controller.command_choose_interface import ChooseInterface
+from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
+from network_scanner.command_network_scanner_scapy import NetworkScannerScapy
 from option.option_manager import OptionManager
 from command.exit_program import ExitProgram
 from configuration.configuration import Configuration
@@ -21,20 +23,19 @@ class OptionManagerBuilder:
             command=ExitProgram()
         )
         option_manager.add_option(exit_option)
-        #hello world option
+
         hello_world_option: Option = Option.build(
             identifier='001',
-            priority=0,
+            priority=1,
             name='hello world command!',
             description='Print string hello world!',
             status = 0,
             command=HelloWorld()
         )
         option_manager.add_option(hello_world_option)
-        #hello world option
         report_interface_option: Option = Option.build(
             identifier='002',
-            priority=1,
+            priority=2,
             name='report_interface_option',
             description='Show my interfaces!',
             status = 0,
@@ -42,16 +43,35 @@ class OptionManagerBuilder:
         )
         option_manager.add_option(report_interface_option)
 
-        #hello world option
-        report_interface_option: Option = Option.build(
+        choose_interface_option: Option = Option.build(
             identifier='003',
-            priority=2,
+            priority=3,
             name='choose_interface_option',
             description='Choose my interface!',
             status = 0,
             command=ChooseInterface()
         )
-        option_manager.add_option(report_interface_option)
+        option_manager.add_option(choose_interface_option)
+
+        mac_changer_option: Option = Option.build(
+            identifier='004',
+            priority=4,
+            name='mac_changer',
+            description='Change Mac Address!',
+            status = 0,
+            command=MacChanger()
+        )
+        option_manager.add_option(mac_changer_option)
+
+        network_scanner_scapy_option: Option = Option.build(
+            identifier='005',
+            priority=5,
+            name='network_scanner_scapy',
+            description='Network Scanner with Scapy!',
+            status = 0,
+            command=NetworkScannerScapy()
+        )
+        option_manager.add_option(network_scanner_scapy_option)
 
         for option in option_manager.options.values():
             configuration.subscribe(option)

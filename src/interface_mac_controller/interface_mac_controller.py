@@ -11,12 +11,16 @@ class InterfaceMacController:
     @staticmethod
     def detect_cidr(ip_address: str):
         # List of common subnet masks
-        common_subnet_masks = ['255.255.255.0', '255.255.0.0', '255.0.0.0']
-
+        common_subnet_masks = ['255.255.255.255',
+                               '255.255.255.0', 
+                               '255.255.0.0', 
+                               '255.0.0.0']
+        cidr_notation_list: list = []
         for mask in common_subnet_masks:
             network = ipaddress.IPv4Network((ip_address, mask), strict=False)
             cidr_notation = str(network)
-            print(f"CIDR notation for IP {ip_address} with subnet mask {mask} is {cidr_notation}")
+            cidr_notation_list.append(cidr_notation)
+        return cidr_notation_list
 
     @staticmethod
     def choose_interface():
@@ -41,7 +45,7 @@ class InterfaceMacController:
         return all_items
 
     @staticmethod
-    def get_interface_resume():
+    def get_interface_resume(interface_input  = None):
         result_ifconfig: bytes = DirectCommandLine.popen(sudo='sudo',
                                              ifconfig='ifconfig')
 
@@ -51,12 +55,19 @@ class InterfaceMacController:
         interfaces_list = []
         ip_list = []
         mac_list = []
-        for interface in result_ifconfig_rows:
-            interfaces_list.append(InterfaceMacController.get_interface(interface))
-            ip_list.append(InterfaceMacController.get_ip(interface))
-            mac_list.append(InterfaceMacController.get_mac(interface))
+        if interface_input:
+            for interface_row in result_ifconfig_rows:
+                if InterfaceMacController.get_interface(interface_row) == interface_input:
+                    return (interface_input,
+                            InterfaceMacController.get_ip(interface_row), 
+                            InterfaceMacController.get_mac(interface_row))
+        else:
+            for interface_row in result_ifconfig_rows:
+                interfaces_list.append(InterfaceMacController.get_interface(interface_row))
+                ip_list.append(InterfaceMacController.get_ip(interface_row))
+                mac_list.append(InterfaceMacController.get_mac(interface_row))
 
-        return interfaces_list, ip_list, mac_list
+            return interfaces_list, ip_list, mac_list
 
     @staticmethod
     def get_interface(interface):

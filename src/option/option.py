@@ -28,9 +28,15 @@ class Option:
     def set_command(self, command: Command):
         self.command: Command = command
 
-    def update_by_rules(self, config_data):
+    def update_by_rules(self, configurations):
         if self.id in ['000','001','002','003']:
             self.set_status(1)
+
+        if configurations.get_configuration(key="my_interface") and self.id in ['004',
+                                                                                '005']:
+            self.set_status(1)
+
+
 
     @staticmethod
     def build(identifier: str,

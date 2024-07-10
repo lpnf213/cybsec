@@ -12,6 +12,7 @@ subject whenever there's a change in configurations.
 from typing import List
 
 from option.option import Option
+from utils.utils import display_dict_as_table
 
 class Configuration:
     _instance = None
@@ -20,9 +21,7 @@ class Configuration:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._observers: List[Option] = [] # type: ignore
-            cls._instance._config_data = {
-                'my_interface': None
-            }  # Your configuration data goes here
+            cls._instance._config_data = {}  # Your configuration data goes here
         return cls._instance
 
     def set_configuration(self, key, value):
@@ -40,4 +39,9 @@ class Configuration:
 
     def notify_observers(self):
         for observer in self._observers:
-            observer.update_by_rules(self._config_data)
+            observer.update_by_rules(self)
+
+    def show_configurations(self):
+        display_dict_as_table(data = self._config_data,
+                              headers = ['Name', 'Value'],
+                              title = 'Configurations')

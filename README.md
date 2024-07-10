@@ -35,7 +35,7 @@ sudo python3 mac_changer.py -i all
 # network discover
 ## netdiscover
 sudo netdiscover -r 192.168.1.1/24
-## Python Script
+## Python Scapy Script
 sudo python network_scanner.py -t "192.168.1.1/24"
 ## nmap
 sudo nmap --osscan-guess "192.168.1.1/24" 
