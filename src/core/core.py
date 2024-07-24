@@ -18,4 +18,3 @@ def main():
         option_id:str = menu.get_choice()
         option_manager.execute_option(identifier=option_id)
         press_enter_and_clear_screen()
-

@@ -9,7 +9,7 @@ from colorama import init, Fore, Style
 class NetworkScanner:
 
     @staticmethod
-    def scan_with_scapy(ip):
+    def scan_with_scapy(ip, timeout):
         # ARP REQUEST -> who has net ip?
         arp_request = scapy.ARP(pdst=ip)
         print('arp_request: ' + str(arp_request))
@@ -31,9 +31,9 @@ class NetworkScanner:
             ip_address = element[1].psrc
             mac_address = element[1].hwsrc
             hostname = NetworkScanner.get_hostname(ip_address)
-            device_info = NetworkScanner.get_device_info(ip_address)
+            device_info = NetworkScanner.get_device_info(ip_address, timeout)
             manufacturer = NetworkScanner.get_mac_manufacturer(mac_address)
-            vulnerabilities = NetworkScanner.scan_vulnerabilities(ip_address)
+            vulnerabilities = NetworkScanner.scan_vulnerabilities(ip_address, timeout)
 
             client_dict = {
                 "ip": ip_address,
@@ -57,11 +57,11 @@ class NetworkScanner:
         return hostname
 
     @staticmethod
-    def get_device_info(ip):
+    def get_device_info(ip, timeout):
         device_info = {}
         try:
             nm = nmap.PortScanner()
-            nm.scan(ip, arguments='-O', timeout=20)  # OS detection
+            nm.scan(ip, arguments='-O', timeout=timeout)  # OS detection
 
             if ip in nm.all_hosts():
                 if 'osclass' in nm[ip]:
@@ -99,12 +99,12 @@ class NetworkScanner:
         except requests.RequestException:
             return "Unknown"
 
-    @staticmethod    
-    def scan_vulnerabilities(ip):
+    @staticmethod
+    def scan_vulnerabilities(ip, timeout):
         vulnerabilities = []
         try:
             nm = nmap.PortScanner()
-            nm.scan(ip, arguments='--script vuln', timeout=20)
+            nm.scan(ip, arguments='--script vuln', timeout=timeout)
             if ip in nm.all_hosts():
                 for script in nm[ip].get('hostscript', []):
                     vulnerabilities.append(script['id'])
@@ -112,7 +112,8 @@ class NetworkScanner:
         except Exception as e:
             print(e)
             return []
-    @staticmethod         
+        
+    @staticmethod     
     def print_results(results_list):
         table_data = []
         headers = ["IP",

@@ -1,7 +1,8 @@
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
-from network_scanner.command_network_scanner_scapy import NetworkScannerScapy
+from network_scanner.command_network_long_scanner_scapy import NetworkLongScannerScapy
+from network_scanner.command_network_short_scanner_scapy import NetworkShortScannerScapy
 from option.option_manager import OptionManager
 from command.exit_program import ExitProgram
 from configuration.configuration import Configuration
@@ -63,15 +64,26 @@ class OptionManagerBuilder:
         )
         option_manager.add_option(mac_changer_option)
 
-        network_scanner_scapy_option: Option = Option.build(
+        network_long_scanner_scapy_option: Option = Option.build(
             identifier='005',
             priority=5,
-            name='network_scanner_scapy',
-            description='Network Scanner with Scapy!',
+            name='network_long_scanner_scapy',
+            description='Network Long Scanner with Scapy!',
             status = 0,
-            command=NetworkScannerScapy()
+            command=NetworkLongScannerScapy()
         )
-        option_manager.add_option(network_scanner_scapy_option)
+        option_manager.add_option(network_long_scanner_scapy_option)
+
+        network_short_scanner_scapy_option: Option = Option.build(
+            identifier='006',
+            priority=5,
+            name='network_short_scanner_scapy',
+            description='Network Short Scanner with Scapy!',
+            status = 0,
+            command=NetworkShortScannerScapy()
+        )
+        option_manager.add_option(network_short_scanner_scapy_option)
+
 
         for option in option_manager.options.values():
             configuration.subscribe(option)
