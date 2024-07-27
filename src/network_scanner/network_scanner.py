@@ -5,7 +5,7 @@ import nmap
 import requests
 from tabulate import tabulate
 from colorama import init, Fore, Style
-
+# TODO: Create a Scapy Layer
 class NetworkScanner:
 
     @staticmethod

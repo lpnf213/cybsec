@@ -8,7 +8,7 @@ class NetworkShortScannerScapy(Command):
     def execute(self):
         configuration = Configuration()
         NetworkScanner.scan_with_scapy(
-            configuration.get_configuration(key='cidr_2'), timeout = 2)
+            configuration.get_configuration(key='cidr_2'), timeout = 1)
 
     def set_configuration(self, interface):
         configuration = Configuration()
