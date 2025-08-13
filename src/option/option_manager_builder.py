@@ -1,3 +1,5 @@
+from arp_spoof.command_choose_router import ChooseRouter
+from arp_spoof.command_mim import Mim
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
@@ -83,6 +85,26 @@ class OptionManagerBuilder:
             command=NetworkShortScannerScapy()
         )
         option_manager.add_option(network_short_scanner_scapy_option)
+
+        choose_router_option: Option = Option.build(
+            identifier='007',
+            priority=6,
+            name='choose_router_ip',
+            description='Choose Router Ip',
+            status = 0,
+            command=ChooseRouter()
+        )
+        option_manager.add_option(choose_router_option)
+
+        mim_option: Option = Option.build(
+            identifier='008',
+            priority=7,
+            name='mim',
+            description='Man in the Middle Attack',
+            status = 0,
+            command=Mim()
+        )
+        option_manager.add_option(mim_option)
 
 
         for option in option_manager.options.values():

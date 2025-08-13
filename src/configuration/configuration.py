@@ -22,6 +22,7 @@ class Configuration:
             cls._instance = super().__new__(cls)
             cls._instance._observers: List[Option] = [] # type: ignore
             cls._instance._config_data = {}  # Your configuration data goes here
+            cls._instance._threads = {}
         return cls._instance
 
     def set_configuration(self, key, value):
@@ -30,6 +31,10 @@ class Configuration:
 
     def get_configuration(self, key):
         return self._config_data.get(key)
+    
+    def set_thread(self, key, value):
+        self._config_data[key] = value
+        self.notify_observers()
 
     def subscribe(self, observer: Option):
         self._observers.append(observer)

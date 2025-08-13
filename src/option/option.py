@@ -34,7 +34,11 @@ class Option:
 
         if configurations.get_configuration(key="my_interface") and self.id in ['004',
                                                                                 '005',
-                                                                                '006']:
+                                                                                '006',
+                                                                                '007']:
+            self.set_status(1)
+
+        if configurations.get_configuration(key="router_ip") and self.id in ['008']:
             self.set_status(1)
 
 
