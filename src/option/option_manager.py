@@ -1,4 +1,5 @@
 # Option Manager
+from typing import Dict
 from configuration.configuration import Configuration
 from command.invoker import Invoker
 from option.option import Option
@@ -6,8 +7,8 @@ from option.option import Option
 
 class OptionManager:
     def __init__(self):
-        self.options = {}
-        self.active_options = {}
+        self.options: Dict[Option] = {}
+        self.active_options: Dict[Option]  = {}
 
     def add_option(self, option: Option):
         self.options[option.id] = option
@@ -18,7 +19,7 @@ class OptionManager:
             if option.status == 1:
                 self.active_options[option.id] = option
 
-    def execute_option(self, identifier):
+    def execute_option(self, identifier: str):
         if identifier in self.options and self.options[identifier].status==1:
             invoke_command: Invoker = Invoker()
             invoke_command.add_command(self.options[identifier].command)

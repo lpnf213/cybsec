@@ -1,5 +1,6 @@
 from arp_spoof.command_choose_router import ChooseRouter
 from arp_spoof.command_mim import Mim
+from arp_spoof.command_mim_remove import MimRemove
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
@@ -105,6 +106,16 @@ class OptionManagerBuilder:
             command=Mim()
         )
         option_manager.add_option(mim_option)
+
+        mim_remove_option: Option = Option.build(
+            identifier='009',
+            priority=8,
+            name='mim_remove',
+            description='Stop Man in the Middle Attack',
+            status = 0,
+            command=MimRemove()
+        )
+        option_manager.add_option(mim_remove_option)
 
 
         for option in option_manager.options.values():

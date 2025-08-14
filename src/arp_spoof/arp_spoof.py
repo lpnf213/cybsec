@@ -65,15 +65,3 @@ class ArpSpoof:
         name_watcher = f"{target_ip}_arp_spoof"
         control_file_path = f"threads/{name_watcher}_control"
         ArpSpoof.delete_control_file(control_file_path)
-
-# Example usage
-if __name__ == "__main__":
-    target_ip = "192.168.1.226"  # Target IP address
-    router_ip = "192.168.1.1"  # Router IP address
-
-    os.makedirs('threads', exist_ok=True)
-    name_watcher = f"{target_ip}_arp_spoof"
-    control_file_path = f"threads/{name_watcher}_control"
-
-    thread = threading.Thread(target=ArpSpoof.man_in_the_middle, args=(target_ip, router_ip, control_file_path, 'false'), name="MITMThread")
-    thread.start()

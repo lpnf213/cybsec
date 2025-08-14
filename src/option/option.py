@@ -38,7 +38,7 @@ class Option:
                                                                                 '007']:
             self.set_status(1)
 
-        if configurations.get_configuration(key="router_ip") and self.id in ['008']:
+        if configurations.get_configuration(key="router_ip") and self.id in ['008','009']:
             self.set_status(1)
 
 

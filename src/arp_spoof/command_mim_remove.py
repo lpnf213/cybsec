@@ -3,12 +3,10 @@ from command.command import Command
 from configuration.configuration import Configuration
 
 
-class Mim(Command):
+class MimRemove(Command):
     def execute(self):
-        configuration = Configuration()
-        router: str = configuration.get_configuration(key='router_ip')
         target: str = input("Ip Target: ")
-        ArpSpoof.main_mim(router_ip=router,target_ip=target)
+        ArpSpoof.stop_mim(target_ip=target)
         self.set_configuration(target)
 
     def set_configuration(self, target):
@@ -16,5 +14,5 @@ class Mim(Command):
         mim_targets: set = configuration.get_configuration(key='mim_targets')
         if not mim_targets:
              mim_targets = set()
-        mim_targets.add(target)
+        mim_targets.discard(target)
         configuration.set_configuration(key='mim_targets', value=mim_targets)
