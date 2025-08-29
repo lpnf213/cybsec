@@ -1,5 +1,6 @@
 import scapy.all as scapy
-from scapy.layers import http
+
+from scapy.packet import Raw
 
 class Sniff():
 
@@ -12,6 +13,7 @@ class Sniff():
     @staticmethod
     def process_sniffed_packet(packet):
         print(packet)
+        print(packet.summary())
 
 
 Sniff.sniff("wlan0")
