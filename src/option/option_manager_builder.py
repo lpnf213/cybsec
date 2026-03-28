@@ -1,6 +1,7 @@
 from arp_spoof.command_choose_router import ChooseRouter
 from arp_spoof.command_mim import Mim
 from arp_spoof.command_mim_remove import MimRemove
+from arp_spoof.command_toggle_ip_forwarding import ToggleIpForwarding
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
@@ -148,6 +149,16 @@ class OptionManagerBuilder:
             command=SniffStop()
         )
         option_manager.add_option(sniff_stop_option)
+
+        toggle_forwarding_option: Option = Option.build(
+            identifier='013',
+            priority=13,
+            name='toggle_ip_forwarding',
+            description='Analyze/Toggle IP Forwarding Status',
+            status=1, # Always active (status check is inside)
+            command=ToggleIpForwarding()
+        )
+        option_manager.add_option(toggle_forwarding_option)
 
         for option in option_manager.options.values():
             configuration.subscribe(option)

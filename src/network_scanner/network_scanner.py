@@ -16,6 +16,7 @@ class NetworkScanner:
     def scan_with_scapy(ip, timeout):
         from configuration.configuration import Configuration
         configuration = Configuration()
+        interface = configuration.get_configuration(key="my_interface_name")
         
         # ARP REQUEST -> who has net ip?
         arp_request = scapy.ARP(pdst=ip)
@@ -24,9 +25,9 @@ class NetworkScanner:
         # ARP REQUEST + INTERNET FRAME
         arp_request_broadcast = broadcast/arp_request
 
-        print(f"[!] Sending ARP Broadcast to {ip}...")
+        print(f"[!] Sending ARP Broadcast to {ip} on {interface}...")
         answered_list, _ = scapy.srp(arp_request_broadcast,
-                                timeout=2, verbose=False)
+                                timeout=2, iface=interface, verbose=False)
 
         # Initial list of found devices
         clients_list = []

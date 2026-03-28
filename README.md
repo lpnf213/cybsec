@@ -156,6 +156,7 @@ classDiagram
     Command <|-- SniffStart
     Command <|-- SniffStop
     Command <|-- NetworkScannerShowResults
+    Command <|-- ToggleIpForwarding
 
     %% State dependencies (represented as dashed arrows)
     NetworkShortScannerScapy ..> NetworkScannerShowResults : provides scan_results
@@ -164,6 +165,7 @@ classDiagram
     NetworkLongScannerScapy ..> ChooseRouter : provides IPs
     ChooseRouter ..> Mim : provides router_ip
     Mim ..> SniffStart : provides mim_targets
+    ToggleIpForwarding ..> Mim : enables routing
 
     Invoker o-- Command : executes
     
@@ -188,6 +190,8 @@ classDiagram
     SniffStart --> Sniff : uses
     SniffStop --> Sniff : uses
 
+    ToggleIpForwarding --> ArpSpoof : uses
+
     InterfaceMacController --> RegexParser : uses
 ```
 
@@ -195,16 +199,17 @@ classDiagram
 
 The following classes inherit from the base `Command` interface to provide specific functionalities:
 
-- **NetworkShortScannerScapy**: Performs a short (quick) network scan using Scapy.
-- **NetworkLongScannerScapy**: Performs a comprehensive (long) network scan using Scapy.
-- **NetworkScannerShowResults**: Displays the results of the most recent network scan from its JSON file.
-- **ReportInterface**: Lists and reports available network interfaces to the user.
-- **ChooseInterface**: Allows the user to select an active network interface for operations.
-- **MacChanger**: Facilitates changing the MAC address of a selected network interface.
-- **ExitProgram**: Cleanly terminates and exits the application.
-- **HelloWorld**: A simple command used for testing purposes that prints 'Hello World'.
-- **MimRemove**: Stops and removes an active Man-In-The-Middle (ARP Spoofing) attack.
-- **Mim**: Initiates a Man-In-The-Middle (ARP Spoofing) attack on a target.
-- **ChooseRouter**: Selects the router/gateway IP address for network attacks.
-- **SniffStart**: Starts the packet sniffer on a target (requires active MIM).
-- **SniffStop**: Stops a background packet sniffer session.
+- **NetworkShortScannerScapy**: Performs a quick ARP-based network scan. Results are saved in timestamped JSON files in `threads/`.
+- **NetworkLongScannerScapy**: Performs a deep network scan with Nmap/OS detection. Enrich data in background threads.
+- **NetworkScannerShowResults**: Displays a table of the most recent scan results from the latest JSON file.
+- **ReportInterface**: Lists all available network interfaces on the system.
+- **ChooseInterface**: Sets the active interface for all network tools.
+- **MacChanger**: Changes the HW address (MAC) of the selected interface for anonymity.
+- **ExitProgram**: Cleanly exits the cybsec tool.
+- **HelloWorld**: Simple connectivity/logic test command.
+- **ChooseRouter**: Interactively select the gateway from discovered devices or set manually.
+- **Mim**: Initiates a Man-In-The-Middle (ARP Spoofing) attack on a target. Automatically enables IP Forwarding and generates per-victim logs (`threads/{ip}_arp_spoof_log.txt`).
+- **MimRemove**: Safely stops an active MIM attack for a specific target and stops the spoofing thread.
+- **SniffStart**: Starts background packet capture. Captures **HTTP URLs/Credentials** in a text log and **ALL raw traffic** (including HTTPS) in a `.pcap` file (`threads/{ip}_capture.pcap`).
+- **SniffStop**: Stops the sniffer session for a target.
+- **ToggleIpForwarding**: Manually check or flip the Linux kernel's IP forwarding switch for security management.
