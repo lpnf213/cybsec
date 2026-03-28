@@ -24,8 +24,8 @@ class ArpSpoof:
         target_mac = None
         router_mac = None
         packets_sent = 0
-        try:
-            while os.path.exists(filepath):
+        while os.path.exists(filepath):
+            try:
                 if force_get_mac_address or not target_mac or not router_mac:
                     target_mac = ArpSpoof.get_mac(target_ip)
                     router_mac = ArpSpoof.get_mac(router_ip)
@@ -34,9 +34,10 @@ class ArpSpoof:
                 packets_sent += 2
                 logging.info(f"Packets sent: {packets_sent}")
                 time.sleep(1)
-        except Exception as e:
-            print(f'ERROR in mim with ip {target_ip} : ' + str(e))
-            ArpSpoof.man_in_the_middle(target_ip, router_ip, filepath, force_get_mac_address=False)
+            except Exception as e:
+                print(f'ERROR in mim with ip {target_ip} : ' + str(e))
+                time.sleep(1)
+                continue
 
     @staticmethod
     def create_control_file(filepath):

@@ -5,6 +5,9 @@ from command.command import Command
 
 
 class ChooseInterface(Command):
+    """
+    Command that allows the user to select an active network interface for operations.
+    """
     def execute(self):
         interface: list = InterfaceMacController.choose_interface()
         self.set_configuration(interface)

@@ -4,6 +4,9 @@ from command.command import Command
 
 
 class HelloWorld(Command):
+    """
+    A simple command used for testing purposes that prints 'Hello World'.
+    """
     def execute(self):
         print('Hello World!')
 

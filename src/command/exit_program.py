@@ -4,6 +4,9 @@ import sys
 
 
 class ExitProgram(Command):
+    """
+    Command to cleanly terminate and exit the application.
+    """
     def execute(self):
         sys.exit()
 

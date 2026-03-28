@@ -5,6 +5,9 @@ from command.command import Command
 
 
 class MacChanger(Command):
+    """
+    Command that facilitates changing the MAC address of a selected network interface.
+    """
     def execute(self):
         configuration = Configuration()
         interface: str = configuration.get_configuration(key="my_interface_name")

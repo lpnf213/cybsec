@@ -4,6 +4,9 @@ from configuration.configuration import Configuration
 
 
 class Mim(Command):
+    """
+    Command to initiate a Man-In-The-Middle (ARP Spoofing) attack on a target.
+    """
     def execute(self):
         configuration = Configuration()
         router: str = configuration.get_configuration(key='router_ip')

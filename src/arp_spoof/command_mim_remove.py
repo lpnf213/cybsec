@@ -4,6 +4,9 @@ from configuration.configuration import Configuration
 
 
 class MimRemove(Command):
+    """
+    Command to stop and remove an active Man-In-The-Middle (ARP Spoofing) attack.
+    """
     def execute(self):
         target: str = input("Ip Target: ")
         ArpSpoof.stop_mim(target_ip=target)

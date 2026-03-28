@@ -4,49 +4,119 @@ import socket
 import nmap
 import requests
 from tabulate import tabulate
+import threading
+import json
+import os
+import time
 from colorama import init, Fore, Style
 # TODO: Create a Scapy Layer
 class NetworkScanner:
 
     @staticmethod
     def scan_with_scapy(ip, timeout):
+        from configuration.configuration import Configuration
+        configuration = Configuration()
+        
         # ARP REQUEST -> who has net ip?
         arp_request = scapy.ARP(pdst=ip)
-        print('arp_request: ' + str(arp_request))
         # internet object frame
         broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-        print('broadcast: ' + str(broadcast))
         # ARP REQUEST + INTERNET FRAME
         arp_request_broadcast = broadcast/arp_request
-        print('arp_request_broadcast: ' + str(arp_request_broadcast))
 
-        answered_list, unanswered = scapy.srp(arp_request_broadcast,
-                                timeout=5, verbose=True)
-        print(answered_list)
-        print(unanswered)
+        print(f"[!] Sending ARP Broadcast to {ip}...")
+        answered_list, _ = scapy.srp(arp_request_broadcast,
+                                timeout=2, verbose=False)
 
-        # list of dictionaries
+        # Initial list of found devices
         clients_list = []
         for element in answered_list:
-            ip_address = element[1].psrc
-            mac_address = element[1].hwsrc
-            hostname = NetworkScanner.get_hostname(ip_address)
-            device_info = NetworkScanner.get_device_info(ip_address, timeout)
-            manufacturer = NetworkScanner.get_mac_manufacturer(mac_address)
-            vulnerabilities = NetworkScanner.scan_vulnerabilities(ip_address, timeout)
-
             client_dict = {
-                "ip": ip_address,
-                "mac": mac_address,
-                "name": hostname,
-                "info": device_info, 
-                "manufacturer": manufacturer,
-                "vulnerabilities": vulnerabilities
+                "ip": element[1].psrc,
+                "mac": element[1].hwsrc,
+                "name": "Scanning...",
+                "info": {"os": "Scanning...", "os_gen": "Scanning...", "os_vendor": "Scanning...", "open_ports": []},
+                "manufacturer": "Scanning...",
+                "vulnerabilities": []
             }
             clients_list.append(client_dict)
-        if clients_list is not None:
-            init(autoreset=True)  # Initialize colorama
-            NetworkScanner.print_results(clients_list)
+        
+        # Save results to file with timestamp
+        os.makedirs('threads', exist_ok=True)
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        results_file = f"threads/scan_{timestamp}.json"
+        
+        with open(results_file, 'w') as f:
+            json.dump(clients_list, f, indent=4)
+            
+        # Store file path in Configuration
+        configuration.set_configuration("last_scan_results_file", results_file)
+        
+        # Lock for thread-safe file updates
+        file_lock = threading.Lock()
+
+        # Start enrichment in background threads
+        def enrich_client(client_ip):
+            # Slow lookups
+            hostname = NetworkScanner.get_hostname(client_ip)
+            
+            # Find the client index to update MAC first for manufacturer
+            with file_lock:
+                try:
+                    with open(results_file, 'r') as f:
+                        current_results = json.load(f)
+                except Exception: return
+                
+                target_client = next((c for c in current_results if c["ip"] == client_ip), None)
+                if not target_client: return
+                
+                mac_address = target_client["mac"]
+            
+            manufacturer = NetworkScanner.get_mac_manufacturer(mac_address)
+            device_info = NetworkScanner.get_device_info(client_ip, timeout)
+            
+            # Update file safely
+            with file_lock:
+                try:
+                    with open(results_file, 'r') as f:
+                        current_results = json.load(f)
+                    
+                    for c in current_results:
+                        if c["ip"] == client_ip:
+                            c["name"] = hostname
+                            c["manufacturer"] = manufacturer
+                            c["info"] = device_info
+                            break
+                    
+                    with open(results_file, 'w') as f:
+                        json.dump(current_results, f, indent=4)
+                except Exception: pass
+            
+            configuration.notify_observers()
+
+        print(f"[!] Found {len(clients_list)} devices. Enriching data in background...")
+        for client in clients_list:
+            t = threading.Thread(target=enrich_client, args=(client["ip"],), daemon=True)
+            t.start()
+        
+        return results_file
+
+    @staticmethod
+    def show_last_results():
+        from configuration.configuration import Configuration
+        configuration = Configuration()
+        results_file = configuration.get_configuration("last_scan_results_file")
+        
+        if not results_file or not os.path.exists(results_file):
+            print("[-] No recent scan results found.")
+            return
+
+        try:
+            with open(results_file, 'r') as f:
+                results = json.load(f)
+            NetworkScanner.print_results(results)
+        except Exception as e:
+            print(f"[-] Error reading results: {e}")
 
     @staticmethod
     def get_hostname(ip):

@@ -35,10 +35,15 @@ class Option:
         if configurations.get_configuration(key="my_interface") and self.id in ['004',
                                                                                 '005',
                                                                                 '006',
-                                                                                '007']:
+                                                                                '007',
+                                                                                '008']:
             self.set_status(1)
 
-        if configurations.get_configuration(key="router_ip") and self.id in ['008','009']:
+        if configurations.get_configuration(key="router_ip") and self.id in ['009','010']:
+            self.set_status(1)
+
+        mim_targets = configurations.get_configuration(key="mim_targets")
+        if mim_targets and len(mim_targets) > 0 and self.id in ['011','012']:
             self.set_status(1)
 
 

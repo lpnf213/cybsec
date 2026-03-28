@@ -6,6 +6,8 @@ from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
 from network_scanner.command_network_long_scanner_scapy import NetworkLongScannerScapy
 from network_scanner.command_network_short_scanner_scapy import NetworkShortScannerScapy
+from network_scanner.command_network_scanner_show_results import NetworkScannerShowResults
+from sniff.command_sniff import SniffStart, SniffStop
 from option.option_manager import OptionManager
 from command.exit_program import ExitProgram
 from configuration.configuration import Configuration
@@ -87,8 +89,18 @@ class OptionManagerBuilder:
         )
         option_manager.add_option(network_short_scanner_scapy_option)
 
-        choose_router_option: Option = Option.build(
+        show_scan_results_option: Option = Option.build(
             identifier='007',
+            priority=5,
+            name='show_last_scan',
+            description='Show Last Network Scan Results',
+            status=0, # Changed from 1 to 0 so it follows interface rule in Option.py
+            command=NetworkScannerShowResults()
+        )
+        option_manager.add_option(show_scan_results_option)
+
+        choose_router_option: Option = Option.build(
+            identifier='008',
             priority=6,
             name='choose_router_ip',
             description='Choose Router Ip',
@@ -98,7 +110,7 @@ class OptionManagerBuilder:
         option_manager.add_option(choose_router_option)
 
         mim_option: Option = Option.build(
-            identifier='008',
+            identifier='009',
             priority=7,
             name='mim',
             description='Man in the Middle Attack',
@@ -108,7 +120,7 @@ class OptionManagerBuilder:
         option_manager.add_option(mim_option)
 
         mim_remove_option: Option = Option.build(
-            identifier='009',
+            identifier='010',
             priority=8,
             name='mim_remove',
             description='Stop Man in the Middle Attack',
@@ -117,6 +129,25 @@ class OptionManagerBuilder:
         )
         option_manager.add_option(mim_remove_option)
 
+        sniff_start_option: Option = Option.build(
+            identifier='011',
+            priority=9,
+            name='sniff_start',
+            description='Start Sniffing (Requires MIM)',
+            status=0,
+            command=SniffStart()
+        )
+        option_manager.add_option(sniff_start_option)
+
+        sniff_stop_option: Option = Option.build(
+            identifier='012',
+            priority=10,
+            name='sniff_stop',
+            description='Stop Sniffing (Requires MIM)',
+            status=0,
+            command=SniffStop()
+        )
+        option_manager.add_option(sniff_stop_option)
 
         for option in option_manager.options.values():
             configuration.subscribe(option)

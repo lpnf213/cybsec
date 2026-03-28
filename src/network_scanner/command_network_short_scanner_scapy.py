@@ -5,6 +5,9 @@ from network_scanner.network_scanner import NetworkScanner
 
 
 class NetworkShortScannerScapy(Command):
+    """
+    Command responsible for performing a short (quick) network scan using Scapy.
+    """
     def execute(self):
         configuration = Configuration()
         NetworkScanner.scan_with_scapy(

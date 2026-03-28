@@ -63,7 +63,7 @@ By enabling IP forwarding, your Linux system can route traffic between different
 
 # ARP
 ## ARP REQUEST
-Broadcast MacAddress 
+Broadcast MaxAddress 
 Who are mac Address x
 ## ARP RECEIVE
 My Mac Address is x
@@ -71,3 +71,140 @@ My Mac Address is x
 arp -a 
 ## ARP RESPONSE
 
+## Class Diagram
+
+```mermaid
+classDiagram
+    class Core {
+        <<EntryPoint>>
+        +main()
+    }
+
+    class Command {
+        <<interface>>
+        +execute()
+        +set_configuration()
+    }
+    
+    class Invoker {
+        -commands: dict
+        +register(command_name, command)
+        +execute(command_name)
+    }
+    
+    class Configuration {
+        <<Subject>>
+        +get_configuration(key)
+        +subscribe(observer)
+        +notify_observers()
+    }
+
+    class Option {
+        <<Observer>>
+        +id: str
+        +status: bool
+        -command: Command
+        +update_by_rules(configurations)
+    }
+    
+    class OptionManager {
+        -options: dict
+        -active_options: dict
+        +add_option(option)
+        +execute_option(identifier)
+    }
+    
+    class OptionManagerBuilder {
+        <<Builder>>
+        +build() OptionManager
+    }
+
+    class Menu {
+        -sorted_options: list
+        +build(option_manager)
+        +display()
+        +get_choice()
+    }
+
+    %% Core Entry Point Logic
+    Core --> OptionManagerBuilder : initiates
+    Core --> OptionManager : uses
+    Core --> Configuration : initializes
+    Core --> Menu : creates
+    
+    %% Menu Logic
+    Menu --> OptionManager : reads active_options
+    Menu --> Option : interacts with
+
+    %% Option and Patterns
+    OptionManagerBuilder --> OptionManager : builds
+    OptionManager "1" o-- "many" Option : contains
+    Option o-- Command : wraps
+    Configuration <-- Option : observes (updates status based on configs)
+    
+    %% Commands and Dependencies
+    Command <|-- NetworkShortScannerScapy
+    Command <|-- NetworkLongScannerScapy
+    Command <|-- ReportInterface
+    Command <|-- ChooseInterface
+    Command <|-- MacChanger
+    Command <|-- ExitProgram
+    Command <|-- HelloWorld
+    Command <|-- MimRemove
+    Command <|-- Mim
+    Command <|-- ChooseRouter
+    Command <|-- SniffStart
+    Command <|-- SniffStop
+    Command <|-- NetworkScannerShowResults
+
+    %% State dependencies (represented as dashed arrows)
+    NetworkShortScannerScapy ..> NetworkScannerShowResults : provides scan_results
+    NetworkLongScannerScapy ..> NetworkScannerShowResults : provides scan_results
+    NetworkShortScannerScapy ..> ChooseRouter : provides IPs
+    NetworkLongScannerScapy ..> ChooseRouter : provides IPs
+    ChooseRouter ..> Mim : provides router_ip
+    Mim ..> SniffStart : provides mim_targets
+
+    Invoker o-- Command : executes
+    
+    %% Core Modules Dependencies
+    class NetworkScanner
+    class InterfaceMacController
+    class ArpSpoof
+    class Sniff
+    class RegexParser
+
+    NetworkShortScannerScapy --> NetworkScanner : uses
+    NetworkLongScannerScapy --> NetworkScanner : uses
+    NetworkScannerShowResults --> NetworkScanner : uses
+    
+    ReportInterface --> InterfaceMacController : uses
+    ChooseInterface --> InterfaceMacController : uses
+    MacChanger --> InterfaceMacController : uses
+
+    Mim --> ArpSpoof : uses
+    MimRemove --> ArpSpoof : uses
+
+    SniffStart --> Sniff : uses
+    SniffStop --> Sniff : uses
+
+    InterfaceMacController --> RegexParser : uses
+```
+
+## Available Commands (Command Pattern)
+
+The following classes inherit from the base `Command` interface to provide specific functionalities:
+
+- **NetworkShortScannerScapy**: Performs a short (quick) network scan using Scapy.
+- **NetworkLongScannerScapy**: Performs a comprehensive (long) network scan using Scapy.
+- **NetworkScannerShowResults**: Displays the results of the most recent network scan from its JSON file.
+- **ReportInterface**: Lists and reports available network interfaces to the user.
+- **ChooseInterface**: Allows the user to select an active network interface for operations.
+- **MacChanger**: Facilitates changing the MAC address of a selected network interface.
+- **ExitProgram**: Cleanly terminates and exits the application.
+- **HelloWorld**: A simple command used for testing purposes that prints 'Hello World'.
+- **MimRemove**: Stops and removes an active Man-In-The-Middle (ARP Spoofing) attack.
+- **Mim**: Initiates a Man-In-The-Middle (ARP Spoofing) attack on a target.
+- **ChooseRouter**: Selects the router/gateway IP address for network attacks.
+- **SniffStart**: Starts the packet sniffer on a target (requires active MIM).
+- **SniffStop**: Stops a background packet sniffer session.
