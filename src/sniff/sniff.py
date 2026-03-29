@@ -35,10 +35,12 @@ class Sniff:
         return None
 
     @staticmethod
-    def process_sniffed_packet(packet, log_filepath, pcap_filepath):
-        # 1. Save RAW packet to PCAP (always)
+    def process_sniffed_packet(packet, log_filepath, pcap_writer):
+        # 1. Save RAW packet to PCAP (using the persistent writer)
         try:
-            scapy.wrpcap(pcap_filepath, [packet], append=True)
+            if pcap_writer:
+                pcap_writer.write(packet)
+                pcap_writer.flush()
         except Exception:
             pass
 
@@ -79,22 +81,34 @@ class Sniff:
         try:
             with open(log_filepath, "a", encoding='utf-8') as f:
                 f.write(f"\n--- Sniffing Session Started for {target_ip} at {time.ctime()} ---\n")
-                f.write(f"--- Raw PCAP capturing to {pcap_filepath} ---\n")
+                f.write(f"--- Raw PCAP capturing to {pcap_filepath} (Buffered) ---\n")
         except: pass
 
-        while os.path.exists(control_filepath):
+        # Using PcapWriter for much better performance
+        # We append to file to avoid losing data if session was already active
+        from scapy.utils import PcapWriter
+        
+        try:
+            # Note: PcapWriter with append=True is only efficient if we keep it open
+            with PcapWriter(pcap_filepath, append=True, sync=True) as pcap_writer:
+                while os.path.exists(control_filepath):
+                    try:
+                        scapy.sniff(
+                            iface=interface,
+                            store=False,
+                            filter=f"host {target_ip}",
+                            prn=lambda pkt: Sniff.process_sniffed_packet(pkt, log_filepath, pcap_writer),
+                            timeout=2
+                        )
+                    except Exception:
+                        time.sleep(1)
+                    time.sleep(0.1)
+        except Exception as e:
+            error_msg = f"[-] Critical Error in Sniff Thread: {e}\n"
             try:
-                # Using sniff with a timeout so the while loop can check the control file
-                scapy.sniff(
-                    iface=interface,
-                    store=False,
-                    filter=f"host {target_ip}",
-                    prn=lambda pkt: Sniff.process_sniffed_packet(pkt, log_filepath, pcap_filepath),
-                    timeout=2
-                )
-            except Exception:
-                time.sleep(1)
-            time.sleep(0.1)
+                with open(log_filepath, "a", encoding='utf-8') as f:
+                    f.write(error_msg)
+            except: pass
 
     @staticmethod
     def start_sniff(interface, target_ip):
@@ -108,10 +122,6 @@ class Sniff:
             if not os.path.exists(control_filepath):
                 with open(control_filepath, 'w') as f:
                     f.write("sniffing")
-            
-            # Clean pcap if it exists to start fresh (optional, but requested "store everything of victim")
-            # If user wants history across sessions, we skip os.remove. 
-            # I'll keep it for now as a fresh session.
             
             thread = threading.Thread(
                 target=Sniff._sniff_thread, 

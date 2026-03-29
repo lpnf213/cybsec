@@ -2,6 +2,7 @@ from arp_spoof.command_choose_router import ChooseRouter
 from arp_spoof.command_mim import Mim
 from arp_spoof.command_mim_remove import MimRemove
 from arp_spoof.command_toggle_ip_forwarding import ToggleIpForwarding
+from arp_spoof.command_toggle_mim_optimization import ToggleMimOptimization
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
@@ -9,6 +10,7 @@ from network_scanner.command_network_long_scanner_scapy import NetworkLongScanne
 from network_scanner.command_network_short_scanner_scapy import NetworkShortScannerScapy
 from network_scanner.command_network_scanner_show_results import NetworkScannerShowResults
 from sniff.command_sniff import SniffStart, SniffStop
+from sniff.command_pcap_investigation import PcapInvestigation
 from option.option_manager import OptionManager
 from command.exit_program import ExitProgram
 from configuration.configuration import Configuration
@@ -159,6 +161,26 @@ class OptionManagerBuilder:
             command=ToggleIpForwarding()
         )
         option_manager.add_option(toggle_forwarding_option)
+
+        pcap_investigation_option: Option = Option.build(
+            identifier='014',
+            priority=14,
+            name='pcap_investigation',
+            description='Investigates/Decrypts insights from PCAP captures',
+            status=1, 
+            command=PcapInvestigation()
+        )
+        option_manager.add_option(pcap_investigation_option)
+
+        toggle_mim_performance_option: Option = Option.build(
+            identifier='015',
+            priority=15,
+            name='toggle_mim_performance',
+            description='Optimize MIM Network Performance (TCP MSS Clamping)',
+            status=1,
+            command=ToggleMimOptimization()
+        )
+        option_manager.add_option(toggle_mim_performance_option)
 
         for option in option_manager.options.values():
             configuration.subscribe(option)

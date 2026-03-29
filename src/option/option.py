@@ -29,7 +29,7 @@ class Option:
         self.command: Command = command
 
     def update_by_rules(self, configurations):
-        if self.id in ['000','001','002','003', '013']:
+        if self.id in ['000','001','002','003', '013', '014', '015']:
             self.set_status(1)
 
         if configurations.get_configuration(key="my_interface") and self.id in ['004',
