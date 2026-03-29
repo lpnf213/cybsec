@@ -157,6 +157,8 @@ classDiagram
     Command <|-- SniffStop
     Command <|-- NetworkScannerShowResults
     Command <|-- ToggleIpForwarding
+    Command <|-- PcapInvestigation
+    Command <|-- ToggleMimOptimization
 
     %% State dependencies (represented as dashed arrows)
     NetworkShortScannerScapy ..> NetworkScannerShowResults : provides scan_results
@@ -166,6 +168,7 @@ classDiagram
     ChooseRouter ..> Mim : provides router_ip
     Mim ..> SniffStart : provides mim_targets
     ToggleIpForwarding ..> Mim : enables routing
+    ToggleMimOptimization ..> Mim : stabilizes connections
 
     Invoker o-- Command : executes
     
@@ -175,6 +178,7 @@ classDiagram
     class ArpSpoof
     class Sniff
     class RegexParser
+    class PcapInvestigator
 
     NetworkShortScannerScapy --> NetworkScanner : uses
     NetworkLongScannerScapy --> NetworkScanner : uses
@@ -191,6 +195,10 @@ classDiagram
     SniffStop --> Sniff : uses
 
     ToggleIpForwarding --> ArpSpoof : uses
+    ToggleMimOptimization --> ArpSpoof : uses
+
+    PcapInvestigation --> PcapInvestigator : uses
+    PcapInvestigator --> Sniff : analyzes capture
 
     InterfaceMacController --> RegexParser : uses
 ```
@@ -213,3 +221,18 @@ The following classes inherit from the base `Command` interface to provide speci
 - **SniffStart**: Starts background packet capture. Captures **HTTP URLs/Credentials** in a text log and **ALL raw traffic** (including HTTPS) in a `.pcap` file (`threads/{ip}_capture.pcap`).
 - **SniffStop**: Stops the sniffer session for a target.
 - **ToggleIpForwarding**: Manually check or flip the Linux kernel's IP forwarding switch for security management.
+- **PcapInvestigation**: Performs forensic analysis on a selected `.pcap` file. Generates a report with protocol stats, domains (DNS/SNI), User-Agents, and Geolocation.
+- **ToggleMimOptimization**: Toggles TCP MSS clamping on the kernel to ensure stable victim connectivity for heavy sites during MIM.
+
+## 📝 IP and Connectivity Commands Detail
+
+To perform a successful Man-In-The-Middle attack without the victim losing internet access, two Linux kernel configurations are used:
+
+### 1. IP Forwarding (`ToggleIpForwarding`)
+*   **What it does:** Allows your Linux kernel to act as a router. It receives packets meant for another device and "forwards" them to the correct destination.
+*   **Why it's needed:** During ARP Spoofing, the victim sends packets to **you** thinking you are the router. If Forwarding is `OFF`, your computer drops those packets and the victim loses internet. With it `ON`, you pass the packets to the real router.
+
+### 2. TCP MSS Clamping (`ToggleMimOptimization`)
+*   **What it does:** Modifies the Maximum Segment Size (MSS) in TCP handshake packets.
+*   **Why it's needed:** When acting as a middleman, some packets from heavy sites (like GitHub or Google) might be too large for your network interface or for the "extra hop" created by the attack. If the packet is too big and has the "Don't Fragment" flag, it gets dropped.
+*   **The solution:** This command tells the victim: *"Hey, send me smaller packets (segments)"*. This ensures the traffic flows smoothly without being dropped by MTU (Maximum Transmission Unit) limits.
