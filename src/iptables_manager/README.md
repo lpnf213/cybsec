@@ -65,5 +65,27 @@ O `iptables` funciona como um pipeline de decisão por onde cada pacote de rede 
 
 ---
 
-## ⚠️ 5. Nota sobre Persistência
-Lembre-te: Por segurança, o Linux **apaga todas as regras** quando reinicias. O nosso módulo Python garante que as regras necessárias são re-aplicadas sempre que inicias uma operação no toolkit.
+## 🚦 6. NFQUEUE: A Janela para o Userspace (Hacking Avançado)
+
+Os comandos `NFQUEUE` são o "santo graal" para quem quer alterar tráfego em tempo real com Python. Em vez de o kernel processar o pacote, ele envia-o para uma fila para ser inspecionado por ti.
+
+### A. Para Redirecionar outros (MIM)
+`sudo iptables -I FORWARD -j NFQUEUE --queue-num 0`  
+*   **Alvo:** Vítimas.
+*   **Aplicação:** DNS Spoofing, Injeção de Código (JS), HTML Replacement.
+*   **Reverter:** `sudo iptables -D FORWARD -j NFQUEUE --queue-num 0`
+
+### B. Para Analisar o próprio computador (Outbound)
+`sudo iptables -I OUTPUT -j NFQUEUE --queue-num 0`  
+*   **Alvo:** O teu Kali.
+*   **Aplicação:** Análise de Malware, Firewall Inteligente de saída.
+*   **Reverter:** `sudo iptables -D OUTPUT -j NFQUEUE --queue-num 0`
+
+### C. Para Defender o próprio computador (Inbound)
+`sudo iptables -I INPUT -j NFQUEUE --queue-num 0`  
+*   **Alvo:** Quem se liga a ti.
+*   **Aplicação:** Deteção de Intrusos (IDS) e filtragem de conteúdo de entrada.
+*   **Reverter:** `sudo iptables -D INPUT -j NFQUEUE --queue-num 0`
+
+> [!WARNING]
+> Correr qualquer um destes comandos sem um script Python ativo (`NetfilterQueue`) causará **interrupção imediata da rede** para os pacotes afetados. Usa o **Iptables Flush (016)** para uma saída de emergência rápida.

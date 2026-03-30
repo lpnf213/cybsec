@@ -12,6 +12,7 @@ from network_scanner.command_network_short_scanner_scapy import NetworkShortScan
 from network_scanner.command_network_scanner_show_results import NetworkScannerShowResults
 from sniff.command_sniff import SniffStart, SniffStop
 from sniff.command_pcap_investigation import PcapInvestigation
+from dns_spoof.command_dns_spoof import DnsSpoofStart, DnsSpoofStop
 from option.option_manager import OptionManager
 from command.exit_program import ExitProgram
 from configuration.configuration import Configuration
@@ -182,6 +183,26 @@ class OptionManagerBuilder:
             command=ToggleMimOptimization()
         )
         option_manager.add_option(toggle_mim_performance_option)
+
+        dns_spoof_start_option: Option = Option.build(
+            identifier='017',
+            priority=17,
+            name='dns_spoof_start',
+            description='Start DNS Spoofing (Requires MIM)',
+            status=1,
+            command=DnsSpoofStart()
+        )
+        option_manager.add_option(dns_spoof_start_option)
+
+        dns_spoof_stop_option: Option = Option.build(
+            identifier='018',
+            priority=18,
+            name='dns_spoof_stop',
+            description='Stop DNS Spoofing',
+            status=1,
+            command=DnsSpoofStop()
+        )
+        option_manager.add_option(dns_spoof_stop_option)
 
         iptables_flush_option: Option = Option.build(
             identifier='016',

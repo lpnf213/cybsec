@@ -43,7 +43,7 @@ class Option:
             self.set_status(1)
 
         mim_targets = configurations.get_configuration(key="mim_targets")
-        if mim_targets and len(mim_targets) > 0 and self.id in ['011','012']:
+        if mim_targets and len(mim_targets) > 0 and self.id in ['011','012','017','018']:
             self.set_status(1)
 
 

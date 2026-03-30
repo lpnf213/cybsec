@@ -1,3 +1,9 @@
+# Cybsec Network Toolkit 🛡️
+
+> [!IMPORTANT]
+> **FOR EDUCATIONAL PURPOSES ONLY.**  
+> The use of these tools against network infrastructures without prior permission is illegal. The author is not responsible for any misuse, damage, or legal consequences caused by this software. Use ethically and only in controlled test environments.
+
 # TODO: Format Readme
 # WINDOWS
 wifi passwords saved 
@@ -58,7 +64,7 @@ Here's a more detailed explanation of each component:
 - `>`: Redirection operator to direct the output to a file.
 - `/proc/sys/net/ipv4/ip_forward`: A pseudo-file that controls IP forwarding settings. Writing `1` to this file turns on IP forwarding, while writing `0` turns it off.
 
-By enabling IP forwarding, your Linux system can route traffic between different network interfaces, which is a key feature for network gateways, routers, or when setting up network address translation (NAT).
+By enabling IP forwarding, your Linux system can route traffic between different networks, setting up network address translation (NAT).
 
 
 # ARP
@@ -160,6 +166,8 @@ classDiagram
     Command <|-- PcapInvestigation
     Command <|-- ToggleMimOptimization
     Command <|-- IptablesFlush
+    Command <|-- DnsSpoofStart
+    Command <|-- DnsSpoofStop
 
     %% State dependencies (represented as dashed arrows)
     NetworkShortScannerScapy ..> NetworkScannerShowResults : provides scan_results
@@ -168,6 +176,7 @@ classDiagram
     NetworkLongScannerScapy ..> ChooseRouter : provides IPs
     ChooseRouter ..> Mim : provides router_ip
     Mim ..> SniffStart : provides mim_targets
+    Mim ..> DnsSpoofStart : provides active victims
     ToggleIpForwarding ..> Mim : enables routing
     ToggleMimOptimization ..> Mim : stabilizes connections
 
@@ -181,6 +190,7 @@ classDiagram
     class RegexParser
     class PcapInvestigator
     class IptablesController
+    class DnsSpoofer
 
     NetworkShortScannerScapy --> NetworkScanner : uses
     NetworkLongScannerScapy --> NetworkScanner : uses
@@ -199,6 +209,10 @@ classDiagram
     ToggleIpForwarding --> IptablesController : uses
     ToggleMimOptimization --> IptablesController : uses
     IptablesFlush --> IptablesController : uses
+    
+    DnsSpoofStart --> DnsSpoofer : uses
+    DnsSpoofStart --> IptablesController : automates NFQUEUE
+    DnsSpoofer --> IptablesController : depends on queue
 
     PcapInvestigation --> PcapInvestigator : uses
     PcapInvestigator --> Sniff : analyzes capture
@@ -220,9 +234,10 @@ The following classes inherit from the base `Command` interface:
 - **Mim / MimRemove**: Man-In-The-Middle (ARP Spoofing) attack management.
 - **SniffStart / SniffStop**: Traffic capture (HTTP log + Raw PCAP).
 - **PcapInvestigation**: Forensic analysis of captured traffic.
-- **ToggleIpForwarding**: Manage Linux kernel IP forwarding (Now in `iptables_manager`).
-- **ToggleMimOptimization**: Manage TCP MSS Clamping optimization (Now in `iptables_manager`).
-- **IptablesFlush**: [NEW] Full system reset of all network rules to default state.
+- **ToggleIpForwarding**: Manage Linux kernel IP forwarding.
+- **ToggleMimOptimization**: Manage TCP MSS Clamping optimization.
+- **IptablesFlush**: Full system reset of all network rules.
+- **DnsSpoofStart / DnsSpoofStop**: [NEW] DNS Spoofing attack (Redirection via NFQUEUE).
 
 ## 📝 IP and Connectivity Commands Detail
 
