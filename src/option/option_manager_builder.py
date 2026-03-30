@@ -1,8 +1,9 @@
 from arp_spoof.command_choose_router import ChooseRouter
 from arp_spoof.command_mim import Mim
 from arp_spoof.command_mim_remove import MimRemove
-from arp_spoof.command_toggle_ip_forwarding import ToggleIpForwarding
-from arp_spoof.command_toggle_mim_optimization import ToggleMimOptimization
+from iptables_manager.command_toggle_ip_forwarding import ToggleIpForwarding
+from iptables_manager.command_toggle_mim_optimization import ToggleMimOptimization
+from iptables_manager.command_iptables_flush import IptablesFlush
 from interface_mac_controller.command_choose_interface import ChooseInterface
 from interface_mac_controller.command_mac_changer import MacChanger
 from interface_mac_controller.command_report_interface import ReportInterface
@@ -181,6 +182,16 @@ class OptionManagerBuilder:
             command=ToggleMimOptimization()
         )
         option_manager.add_option(toggle_mim_performance_option)
+
+        iptables_flush_option: Option = Option.build(
+            identifier='016',
+            priority=16,
+            name='iptables_flush',
+            description='FULL RESET of all iptables rules (DANGER)',
+            status=1,
+            command=IptablesFlush()
+        )
+        option_manager.add_option(iptables_flush_option)
 
         for option in option_manager.options.values():
             configuration.subscribe(option)
