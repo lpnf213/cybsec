@@ -36,7 +36,7 @@ class Sniff:
 
     @staticmethod
     def process_sniffed_packet(packet, log_filepath, pcap_writer):
-        # 1. Save RAW packet to PCAP (using the persistent writer)
+        # 1. Save RAW packet to PCAP
         try:
             if pcap_writer:
                 pcap_writer.write(packet)
@@ -44,36 +44,60 @@ class Sniff:
         except Exception:
             pass
 
-        # 2. Analyze for HTTP or generic TCP Port 80 traffic
+        # 2. Extract basic info
+        timestamp = time.strftime('%H:%M:%S')
         is_http = packet.haslayer(http.HTTPRequest)
-        is_web_port = packet.haslayer(scapy.TCP) and (packet[scapy.TCP].dport == 80 or packet[scapy.TCP].sport == 80)
         
-        if is_http or is_web_port:
-            url_str = ""
+        # 3. Enhanced Detection: DNS, TLS/SNI, and generic TCP/UDP
+        log_entry = ""
+        
+        if is_http:
+            url_str = Sniff.get_url(packet)
             login_info = Sniff.get_login_info(packet)
+            log_entry = f"[{timestamp}] HTTP Request >> {url_str}\n"
+            if login_info:
+                log_entry += f"    [**] Possible Credentials >> {login_info}\n"
+        
+        elif packet.haslayer(scapy.DNSQR):
+            qname = packet[scapy.DNSQR].qname.decode('utf-8', errors='ignore')
+            log_entry = f"[{timestamp}] DNS Query >> {qname}\n"
             
-            if is_http:
-                url_str = Sniff.get_url(packet)
-            elif is_web_port and packet.haslayer(scapy.Raw):
-                # Try to extract the Host header from raw payload if HTTP layer didn't catch it
-                load = packet[scapy.Raw].load.decode('utf-8', errors='ignore')
-                if "Host:" in load:
-                    host = load.split("Host:")[1].split("\r\n")[0].strip()
-                    url_str = f"http://{host} (Raw Capture)"
+        elif packet.haslayer(scapy.TCP):
+            dst_ip = packet[scapy.IP].dst
+            dport = packet[scapy.TCP].dport
             
-            if url_str or login_info:
-                log_entry = f"[{time.strftime('%H:%M:%S')}] "
-                if url_str:
-                    log_entry += f"HTTP Request >> {url_str}\n"
-                if login_info:
-                    log_entry += f"    [**] Possible Credentials >> {login_info}\n"
-                    
-                try:
-                    os.makedirs(os.path.dirname(log_filepath), exist_ok=True)
-                    with open(log_filepath, "a", encoding='utf-8') as f:
-                        f.write(log_entry)
-                except Exception:
-                    pass
+            # Simple TLS SNI extraction for HTTPS
+            if dport == 443 and packet.haslayer(scapy.Raw):
+                load = packet[scapy.Raw].load
+                # Look for the SNI pattern in TLS Handshake (Client Hello)
+                # This is a simplified check for common domain patterns
+                if b"\x00\x00" in load:
+                    try:
+                        # Extract domain-like strings from raw payload (simple forensic heuristic)
+                        import re
+                        domains = re.findall(b"[a-z0-9.-]+\\.[a-z]{2,}", load.lower())
+                        if domains:
+                            domain = domains[0].decode('utf-8', errors='ignore')
+                            log_entry = f"[{timestamp}] HTTPS Session (SNI) >> {domain}\n"
+                    except: pass
+            
+            if not log_entry:
+                # Generic TCP traffic alert for visual feedback
+                log_entry = f"[{timestamp}] TCP Connection >> {dst_ip}:{dport}\n"
+
+        elif packet.haslayer(scapy.UDP):
+            dst_ip = packet[scapy.IP].dst
+            dport = packet[scapy.UDP].dport
+            log_entry = f"[{timestamp}] UDP Traffic >> {dst_ip}:{dport}\n"
+
+        # 4. Write to log
+        if log_entry:
+            try:
+                os.makedirs(os.path.dirname(log_filepath), exist_ok=True)
+                with open(log_filepath, "a", encoding='utf-8') as f:
+                    f.write(log_entry)
+            except Exception:
+                pass
 
     @staticmethod
     def _sniff_thread(interface, target_ip, control_filepath, log_filepath, pcap_filepath):
