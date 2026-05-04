@@ -16,13 +16,12 @@ Vagrant.configure("2") do |config|
     v.gui = true
     v.memory = "2048"
     v.cpus = 2
-  end
-
-  # Fallback configuration for VirtualBox
-  config.vm.provider "virtualbox" do |vb|
-    vb.gui = true
-    vb.memory = "2048"
-    vb.cpus = 2
+    # Disable 3D acceleration to fix invisible mouse bug
+    v.vmx["mks.enable3d"] = "FALSE"
+    # Enable USB controllers for Wi-Fi Adapter passthrough
+    v.vmx["usb.present"] = "TRUE"
+    v.vmx["ehci.present"] = "TRUE"
+    v.vmx["usb_xhci.present"] = "TRUE"
   end
 
   # Shell provisioner to setup Python and the virtual environment
@@ -31,11 +30,12 @@ Vagrant.configure("2") do |config|
     echo "Updating apt repositories..."
     apt-get update -y
     
-    echo "Installing Python 3 and venv..."
-    apt-get install -y python3 python3-venv python3-pip
+    echo "Installing Python 3, venv, system packages, and GUI tools..."
+    apt-get install -y python3 python3-venv python3-pip python3-netfilterqueue open-vm-tools-desktop
     
     echo "Creating virtual environment at /home/vagrant/venv..."
-    sudo -u vagrant python3 -m venv /home/vagrant/venv
+    rm -rf /home/vagrant/venv
+    sudo -u vagrant python3 -m venv --system-site-packages /home/vagrant/venv
     
     echo "Installing requirements from /vagrant/requirements.txt..."
     if [ -f /vagrant/requirements.txt ]; then
